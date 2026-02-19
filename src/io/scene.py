@@ -20,5 +20,4 @@ class SceneManager:
                 is_scene_change = True
                 logger.info(f"Scene change detected at frame {frame_idx} (score: {score:.2f})")
         self.prev_frame_gray = curr_small
-        logger.debug(f"Frame {frame_idx}: Scene change score = {score:.2f}")
         return is_scene_change

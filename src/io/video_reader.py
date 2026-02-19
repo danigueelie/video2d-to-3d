@@ -69,7 +69,7 @@ class VideoHandler:
             '-preset', 'fast',          # Rapidité d'encodage
             '-crf', '23',               # Qualité visuelle (18-28 est bon)
             '-c:a', 'aac',              # Encodage audio
-            '-map', '0:v:0',            # Prendre flux vidéo du fichier 0
+            '-map', '0:v:0?',            # Prendre flux vidéo du fichier 0
             '-map', '1:a:0?',            # Prendre flux audio du fichier 1
             '-shortest',                # Couper au plus court
             self.final_output_path
