@@ -1,0 +1,13 @@
+
+outputs/
+*.log
+*.tmp
+*.cache
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+
+install.txt
+
+checkpoints/

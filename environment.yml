@@ -1,0 +1,36 @@
+
+name: mod_full
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  # Base Python
+  - python=3.10
+  - pip
+  
+  # Outils système (Gros avantage de Conda : il installe FFmpeg et CUDA sans prise de tête)
+  - ffmpeg
+  # - pytorch-cuda=12.1
+  - pytorch>=2.4.0
+  - torchvision>=0.19.0
+  # - pytorch-cuda=12.1
+  - cpuonly
+
+  # Bibliothèques scientifiques (Versions optimisées par Conda)
+  - numpy>=1.24.0
+  - pillow>=10.0.0
+  # - pytorch
+  # - torchvision
+  # - torchaudio
+
+  # Paquets spécifiques installés via Pip
+  # (Nécessaire pour avoir les dernières versions de HuggingFace et OpenCV)
+  - pip:
+    - opencv-python>=4.8.0
+    - transformers>=4.39.0
+    - huggingface_hub>=0.22.0
+    - accelerate>=0.28.0
+    - tqdm>=4.66.0
+    - scenedetect[opencv]>=0.6.3
