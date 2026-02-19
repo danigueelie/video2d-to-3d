@@ -81,4 +81,12 @@ class StereoGen:
             mask = cv2.dilate(mask, np.ones((3,3),np.uint8), iterations=1)
             right_img = cv2.inpaint(right_img, mask, 3, cv2.INPAINT_TELEA)
 
+        if mode == 'anaglyph':
+            # OpenCV utilise le format BGR (Bleu=0, Vert=1, Rouge=2)
+            # On copie l'image droite (qui a les bonnes perspectives pour le bleu/vert)
+            anaglyph_img = right_img.copy()
+            # On remplace le canal Rouge par celui de l'image gauche
+            anaglyph_img[:, :, 2] = left_img[:, :, 2]
+            return anaglyph_img
+
         return np.hstack((left_img, right_img))

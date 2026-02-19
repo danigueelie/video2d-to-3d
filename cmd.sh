@@ -15,3 +15,5 @@
 !python main.py --input data/input.mp4 --mode vr180 --stabilize --inpaint
 
 !python main.py --input data/input.mp4 --mode vr360 --stabilize --inpaint
+
+python main.py --input data/input.mp4 --mode anaglyph --stabilize --inpaint

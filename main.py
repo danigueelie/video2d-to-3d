@@ -23,9 +23,9 @@ def parse_args():
     parser.add_argument('--input', type=str, required=True, help="Vidéo source")
     parser.add_argument('--output_dir', type=str, default='outputs')
     
-    # Mode de sortie
-    parser.add_argument('--mode', type=str, default='sbs', choices=['sbs', 'vr180', 'vr360', 'heatmap'], 
-                        help="sbs (Flat), vr180 (Fisheye), vr360 (Equirectangular)")
+    # Mode de sortie mis à jour
+    parser.add_argument('--mode', type=str, default='sbs', choices=['sbs', 'vr180', 'vr360', 'heatmap', 'anaglyph'], 
+                        help="sbs (Flat), vr180, vr360, heatmap (Debug), anaglyph (Lunettes Rouge/Cyan)")
     
     parser.add_argument('--model_type', type=str, default='depthanything', choices=['depthanything', 'depthcrafter'])
     parser.add_argument('--model_size', type=str, default='small', choices=['small', 'base', 'large'])
@@ -73,7 +73,10 @@ def main():
     stereo = StereoGen(divergence=args.divergence)
     metrics = MetricTracker()
 
-    video.start_writer(meta['width'] * 2, meta['height'])
+    # --- NOUVEAU : Gestion de la largeur vidéo ---
+    # L'anaglyphe garde la largeur originale, les autres doublent la largeur
+    out_width = meta['width'] if args.mode == 'anaglyph' else meta['width'] * 2
+    video.start_writer(out_width, meta['height'])
 
     # Boucle
     pbar = tqdm(total=meta['frames'], unit="frames")
@@ -96,7 +99,7 @@ def main():
                     depth = stabilizer.process(depth)
 
             # 3. Métriques
-            metrics.update(frame, depth)
+            metrics.update(depth)
 
             # 4. Génération Sortie
             if args.mode == 'heatmap':
@@ -105,11 +108,14 @@ def main():
                 output_frame = np.hstack((frame, d_color))
                 
             elif args.mode == 'vr180':
-                output_frame, _ = stereo.generate_sbs(frame, depth, inpaint=args.inpaint, mode='vr180')
+                output_frame = stereo.generate_sbs(frame, depth, inpaint=args.inpaint, mode='vr180')
                 
             elif args.mode == 'vr360':
-                # En VR360, on utilise souvent le BORDER_WRAP pour la continuité gauche-droite
                 output_frame = stereo.generate_sbs(frame, depth, inpaint=args.inpaint, mode='vr360')
+                
+            elif args.mode == 'anaglyph':
+                # Mode lunettes 3D
+                output_frame = stereo.generate_sbs(frame, depth, inpaint=args.inpaint, mode='anaglyph')
                 
             else:
                 output_frame = stereo.generate_sbs(frame, depth, inpaint=args.inpaint, mode='standard')
@@ -123,8 +129,7 @@ def main():
         pbar.close(); video.close(); video.mux_audio()
         
         summary = metrics.get_summary()
-        logger.info(f"📊 Stabilité : {summary['temporal_instability']:.4f}")
+        logger.info(f"📊 Stabilité : {summary['temporal_instability']:.4f}")    
         logger.info(f"📊 Qualité de la Stabilisation : {summary['avg_ssim']:.4f}")
-
 if __name__ == '__main__':
     main()
