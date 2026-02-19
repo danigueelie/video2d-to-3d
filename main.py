@@ -99,7 +99,7 @@ def main():
                     depth = stabilizer.process(depth)
 
             # 3. Métriques
-            metrics.update(depth)
+            metrics.update(frame, depth)
 
             # 4. Génération Sortie
             if args.mode == 'heatmap':
