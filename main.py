@@ -63,7 +63,7 @@ def main():
         os.makedirs(frames_dir, exist_ok=True)
         os.makedirs(depths_dir, exist_ok=True)
         os.makedirs(outs_dir, exist_ok=True)
-        logger.info(f"Sauvegarde des PNG activée dans : {os.path.join(args.output_dir, filename)}")
+        logger.info(f"📁 Sauvegarde des PNG activée dans : {os.path.join(args.output_dir, filename)}")
 
     # Modèle
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -117,9 +117,18 @@ def main():
             # 4. Génération Sortie
             if args.mode in ['heatmap', 'heatmap_numbered']:
                 d_norm = stereo.normalize_depth(depth)
+                d_color = cv2.applyColorMap((d_norm * 255).astype(np.uint8), cv2.COLORMAP_INFERNO)
+                output_frame = np.hstack((frame, d_color))
+                
+                if args.mode == 'heatmap_numbered':
+                    # Ajout d'un contour noir pour que le texte blanc soit visible sur fond clair
+                    text = f"Frame: {video.frame_count}"
+                    cv2.putText(output_frame, text, (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 5, cv2.LINE_AA)
+                    cv2.putText(output_frame, text, (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 2, cv2.LINE_AA)
+                
             elif args.mode == 'anaglyph':
-                # Mode lunettes 3D
-                output_frame = stereo.generate_sbs(frame, depth, inpaint=args.inpaint, mode='anaglyph')
+                    # Mode lunettes 3D
+                    output_frame = stereo.generate_sbs(frame, depth, inpaint=args.inpaint, mode='anaglyph')
                 
             elif args.mode == 'vr180':
                 output_frame = stereo.generate_sbs(frame, depth, inpaint=args.inpaint, mode='vr180')
@@ -144,7 +153,7 @@ def main():
             pbar.update(1)
 
     except KeyboardInterrupt:
-            logger.warning("Arrêt...")
+        logger.warning("Arrêt...")
     finally:
         pbar.close(); video.close(); video.mux_audio()
         
