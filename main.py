@@ -74,7 +74,7 @@ def main():
     model.load()
 
     # Outils Processing
-    scene_manager = SceneManager(threshold=25.0)
+    scene_manager = SceneManager(threshold=40.0)
     
     stabilizer = None
     if args.stabilize:
